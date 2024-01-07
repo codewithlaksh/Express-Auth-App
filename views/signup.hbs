@@ -1,0 +1,62 @@
+<div class="container my-3">
+    <h1>Signup for an account</h1>
+    <form id="signupForm">
+        <div class="mb-3">
+            <label for="email" class="form-label">Email address</label>
+            <input type="email" class="form-control" id="email" name="email" aria-describedby="emailHelp">
+            <div id="emailHelp" class="form-text">We'll never share your email with anyone else.</div>
+        </div>
+        <div class="mb-3">
+            <label for="password1" class="form-label">Password</label>
+            <input type="password" class="form-control" id="password1" name="password1">
+        </div>
+        <div class="mb-3">
+            <label for="password2" class="form-label">Confirm Password</label>
+            <input type="password" class="form-control" id="password2" name="password2">
+        </div>
+        <button type="button" id="signupBtn" class="btn btn-primary">SignUp</button>
+    </form>
+</div>
+
+<script>
+    const signupBtn = document.querySelector('button#signupBtn');
+    let alertMsg = document.querySelector('div#alertMsg')
+
+    signupBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+
+        const signupData = {
+            email: document.getElementById('email').value,
+            password: document.getElementById('password1').value,
+            cpassword: document.getElementById('password2').value
+        }
+
+        fetch('/api/signup', {
+            method: 'post',
+            headers: {
+                'Content-type': 'application/json'
+            },
+            body: JSON.stringify(signupData)
+        })
+            .then(response => response.json())
+            .then(data => {
+                // console.log(data);
+                const { success, message } = data;
+                alertMsg.classList.add('alert');
+                alertMsg.classList.add(success ? 'alert-success' : 'alert-danger');
+                alertMsg.innerHTML = `<strong>${success ? 'Success!' : 'Error!'}</strong> ${message}`;
+                setTimeout(() => {
+                    alertMsg.removeAttribute('class');
+                    alertMsg.innerHTML = '';
+                }, 2000)
+
+                if (success) {
+                    document.querySelector('form#signupForm').reset();
+
+                    setTimeout(() => {
+                        window.location = '/';
+                    }, 2100)
+                }
+            })
+    })
+</script>

@@ -1,0 +1,59 @@
+<div class="container my-3">
+    <h1>Login to your account</h1>
+    <form id="loginForm">
+        <div class="mb-3">
+            <label for="email" class="form-label">Email address</label>
+            <input type="email" class="form-control" id="email" name="email" aria-describedby="emailHelp">
+            <div id="emailHelp" class="form-text">We'll never share your email with anyone else.</div>
+        </div>
+        <div class="mb-3">
+            <label for="password" class="form-label">Password</label>
+            <input type="password" class="form-control" id="password" name="password">
+        </div>
+        <button type="button" id="loginBtn" class="btn btn-primary">Login</button>
+    </form>
+</div>
+
+<script>
+    const loginBtn = document.querySelector('button#loginBtn');
+
+    loginBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+
+        const loginData = {
+            email: document.getElementById('email').value,
+            password: document.getElementById('password').value
+        }
+
+        fetch('/api/login', {
+            method: 'post',
+            headers: {
+                'Content-type': 'application/json'
+            },
+            body: JSON.stringify(loginData)
+        })
+            .then(response => response.json())
+            .then(data => {
+                // console.log(data);
+                const { success, message } = data;
+                alertMsg.classList.add('alert');
+                alertMsg.classList.add(success ? 'alert-success' : 'alert-danger');
+                alertMsg.innerHTML = `<strong>${success ? 'Success!' : 'Error!'}</strong> ${message}`;
+                setTimeout(() => {
+                    alertMsg.removeAttribute('class');
+                    alertMsg.innerHTML = '';
+                    window.location = '/welcome';
+                }, 2000)
+
+                if (success) {
+                    const dt = new Date();
+                    dt.setTime(dt.getTime() + (24 * 60 * 60 * 1000));
+                    document.cookie = `authToken=${data.token}; expires=${dt}; path=/`
+                    document.querySelector('form#loginForm').reset();
+                    setTimeout(() => {
+                        window.location = '/welcome';
+                    }, 2100)
+                }
+            })
+    })
+</script>
